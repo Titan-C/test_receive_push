@@ -23,12 +23,10 @@ dependencies:
 
   override:
     - git clone https://github.com/sphinx-gallery/sphinx-gallery.git
-    - cd sphinx-gallery
     - pwd
     - ls -lah
-    - pip install -r requirements.txt
-    - python setup.py develop
-    - cd ..
+    - pip install -r sphinx-gallery/requirements.txt
+    - cd sphinx-gallery && python setup.py develop
 
 test:
   override:
