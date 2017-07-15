@@ -3,13 +3,33 @@ general:
     ignore:
       - gh-pages
 
-test:
-  override:
+machine:
+  environment:
+    # We need to set this variable to let Anaconda take precedence
+    PATH: "/home/ubuntu/miniconda/envs/circleenv/bin:/home/ubuntu/miniconda/bin:$PATH"
+
+dependencies:
+  pre:
+    # Disable pyenv (no cleaner way provided by CircleCI as it prepends pyenv version to PATH)
+    - rm -rf ~/.pyenv
+    - rm -rf ~/virtualenvs
+    - wget -q http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O ~/miniconda.sh
+    - chmod +x ~/miniconda.sh
+    - ~/miniconda.sh -b -p /home/ubuntu/miniconda
+    - conda update --yes --quiet conda
+    - conda create -n circleenv --yes pip python=2.7
+    - sed -i "s/ENABLE_USER_SITE = .*/ENABLE_USER_SITE = False/g" /home/ubuntu/miniconda/envs/circleenv/lib/python2.7/site.py
+    - conda install -n circleenv --yes numpy scipy seaborn mayavi setuptools matplotlib pillow sphinx pytest pytest-cov sphinx_rtd_theme
     - pip install -r requirements.txt
-    - pip install seaborn sphinx_rtd_theme
+
+  override:
     - git clone https://github.com/sphinx-gallery/sphinx-gallery.git
     - cd sphinx-gallery
     - python setup.py develop
+    - cd ..
+
+test:
+  override:
     - SPHX_GLR_THEME=rtd sphinx-build sphinx-gallery/doc rtd_html
 
 deployment:
